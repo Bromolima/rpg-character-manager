@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -8,17 +9,11 @@ import (
 )
 
 type User struct {
-	ID         string      `gorm:"column:ID;type:varchar(255);not null;unique"`
-	Email      string      `gorm:"column:email;type:varchar(255);not null"`
-	Username   string      `gorm:"column:username;type:varchar(255);not null"`
-	Password   string      `gorm:"column:password;type:varchar(255);not null"`
-	Characters []Character `gorm:"column:characters;foreignKey:CharacterID"`
-	CreatedAt  time.Time   `gorm:"column:CreatedAt;type:date"`
-	UpdatedAt  time.Time   `gorm:"column:UpdatedAttype:date"`
-}
-
-func (u *User) TableName() string {
-	return "user"
+	BaseModel
+	Email      string      `gorm:"not null;unique;not null"`
+	Username   string      `gorm:"not null;unique;not null"`
+	Password   string      `gorm:"not null"`
+	Characters []Character `gorm:"characters;foreignKey:CharacterID"`
 }
 
 type UserPayload struct {
@@ -34,12 +29,20 @@ type UserResponse struct {
 
 func (p *UserPayload) PayloadToUser() *User {
 	return &User{
-		ID:        uuid.New().String(),
-		Email:     p.Email,
-		Username:  p.Username,
-		Password:  p.Password,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		BaseModel: BaseModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
+		Email:    p.Email,
+		Username: p.Username,
+		Password: p.Password,
+	}
+}
+
+func (u *User) UserToResponse() *UserResponse {
+	return &UserResponse{
+		Email:    u.Email,
+		Username: u.Username,
 	}
 }
 
@@ -49,4 +52,10 @@ func (p *UserPayload) Validate() error {
 		return err
 	}
 	return nil
+}
+
+func (p *UserPayload) Trim() {
+	p.Email = strings.TrimSpace(p.Email)
+	p.Username = strings.TrimSpace(p.Username)
+	p.Password = strings.TrimSpace(p.Password)
 }

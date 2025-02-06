@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=bromolima
+      - DB_PASSWORD=22
+      - DB_NAME=rpg
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: bromolima
+      POSTGRES_PASSWORD: 22
+      POSTGRES_DB: rpg
+    ports:
+      - "5432:5432"

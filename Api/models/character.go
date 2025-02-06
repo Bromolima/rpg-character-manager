@@ -8,12 +8,10 @@ import (
 )
 
 type Character struct {
-	ID          string    `gorm:"collunm:ID;type:varchar(255)"`
-	Name        string    `gorm:"collunm:name;type:varchar(255)"`
-	ImageUrl    string    `gorm:"colunm:imageUrl;varchar(255)"`
-	Description string    `gorm:"colunm:description;type:text"`
-	CreatedAt   time.Time `gorm:"column:CreatedAt;type:date"`
-	UpdatedAt   time.Time `gorm:"column:UpdatedAttype:date"`
+	BaseModel
+	Name        string `gorm:"type:text"`
+	ImageUrl    string `gorm:"type:text"`
+	Description string `gorm:"type:text"`
 }
 
 func (c *Character) TableName() string {
@@ -34,12 +32,21 @@ type CharacterResponse struct {
 
 func (p *CharacterPayload) PayloadToCharacter() *Character {
 	return &Character{
-		ID:          uuid.New().String(),
+		BaseModel: BaseModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Name:        p.Name,
 		ImageUrl:    p.ImageUrl,
 		Description: p.Description,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+	}
+}
+
+func (c *Character) CharacterToResponse() *CharacterResponse {
+	return &CharacterResponse{
+		Name:        c.Name,
+		ImageUrl:    c.ImageUrl,
+		Description: c.Description,
 	}
 }
 

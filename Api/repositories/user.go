@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
+	"github.com/Bromolima/rpg-character-manager/internal"
 	"github.com/Bromolima/rpg-character-manager/models"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 )
 
@@ -18,12 +18,12 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	i  do.Injector
+	i  internal.Di
 	db *gorm.DB
 }
 
-func NewUserRepository(i do.Injector) (UserRepository, error) {
-	db, err := do.Invoke[*gorm.DB](i)
+func NewUserRepository(i internal.Di) (UserRepository, error) {
+	db, err := internal.Invoke[*gorm.DB](i)
 
 	if err != nil {
 		return nil, err

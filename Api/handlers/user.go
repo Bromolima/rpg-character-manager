@@ -3,10 +3,10 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/Bromolima/rpg-character-manager/internal"
 	"github.com/Bromolima/rpg-character-manager/models"
 	"github.com/Bromolima/rpg-character-manager/services"
 	"github.com/labstack/echo/v4"
-	"github.com/samber/do/v2"
 )
 
 type UserHanlder interface {
@@ -14,12 +14,12 @@ type UserHanlder interface {
 }
 
 type userHanlder struct {
-	i           do.Injector
+	i           internal.Di
 	userService services.UserService
 }
 
-func NewUserHandler(i do.Injector) (UserHanlder, error) {
-	userService, err := do.Invoke[services.UserService](i)
+func NewUserHandler(i internal.Di) (UserHanlder, error) {
+	userService, err := internal.Invoke[services.UserService](i)
 
 	if err != nil {
 		return nil, err

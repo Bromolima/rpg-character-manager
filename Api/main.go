@@ -4,11 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Bromolima/rpg-character-manager/handlers"
+	"github.com/Bromolima/rpg-character-manager/internal"
 	"github.com/Bromolima/rpg-character-manager/repositories"
-	"github.com/Bromolima/rpg-character-manager/services"
 	"github.com/labstack/echo/v4"
-	"github.com/samber/do/v2"
 )
 
 func main() {
@@ -18,9 +16,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	injector := do.New()
-
-	do.Provide(injector, repositories.NewUserRepository)
-	do.Provide(injector, services.NewUserService)
-	do.Provide(injector, handlers.NewUserHandler)
+	injector := internal.NewDi()
+	internal.Provide(*injector, repositories.NewUserRepository)
 }

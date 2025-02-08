@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Bromolima/rpg-character-manager/internal"
 	"github.com/Bromolima/rpg-character-manager/models"
 	"github.com/Bromolima/rpg-character-manager/repositories"
-	"github.com/samber/do/v2"
 )
 
 type UserService interface {
@@ -14,12 +14,12 @@ type UserService interface {
 }
 
 type userService struct {
-	i              do.Injector
+	i              internal.Di
 	userRepository repositories.UserRepository
 }
 
-func NewUserService(i do.Injector) (UserService, error) {
-	userRepository, err := do.Invoke[repositories.UserRepository](i)
+func NewUserService(i internal.Di) (UserService, error) {
+	userRepository, err := internal.Invoke[repositories.UserRepository](i)
 
 	if err != nil {
 		return nil, err

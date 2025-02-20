@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	apiErrors "github.com/Bromolima/rpg-character-manager/config/api_errors"
@@ -34,14 +35,29 @@ func NewUserHandler(i do.Injector) (UserHanlder, error) {
 }
 
 func (h *userHanlder) CreateUser(ctx echo.Context) error {
+	log := slog.With(
+		slog.String("handler", "user"),
+		slog.String("func", "CreateUser"),
+	)
+
+	log.Info("Starting creating user")
+
 	var payload domain.UserPayload
 	if err := ctx.Bind(&payload); err != nil {
+		log.Warn("failed to bind payload", "error", err)
 		apiErr := apiErrors.NewBadRequestErr("failed to bind payload")
 		return ctx.JSON(apiErr.Code, apiErr)
 	}
 
 	if err := validation.Validate.Struct(payload); err != nil {
+		log.Warn("failed to bind payload", "error", err)
 		apiErr := validation.ValidateUserError(err)
+		return ctx.JSON(apiErr.Code, apiErr)
+	}
+
+	if err := h.userService.CreateUser(ctx.Request().Context(), payload); err != nil {
+		log.Error("failed to bind payload", "error", err)
+		apiErr := apiErrors.NewInternalServerErr("failed to create user")
 		return ctx.JSON(apiErr.Code, apiErr)
 	}
 

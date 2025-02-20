@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 
 	"github.com/Bromolima/rpg-character-manager/domain"
 	"github.com/Bromolima/rpg-character-manager/repository"
@@ -31,19 +31,30 @@ func NewUserService(i do.Injector) (UserService, error) {
 }
 
 func (s *userService) CreateUser(ctx context.Context, payload domain.UserPayload) error {
-	userExist, err := s.userRepository.GetUserByEmail(ctx, payload.Email)
+	log := slog.With(
+		slog.String("service", "user"),
+		slog.String("func", "CreateUser"),
+	)
 
+	log.Info("starting creating user")
+
+	userExist, err := s.userRepository.GetUserByEmail(ctx, payload.Email)
 	if err != nil {
-		return fmt.Errorf("failed to get user")
+		log.Error("failed to get user", "error", err)
+		return err
 	}
 
 	if userExist != nil {
-		return fmt.Errorf("user already exists")
+		log.Warn("email already exists", "error", err)
+		return domain.ErrEmailAlreadyExists
 	}
 
 	if err := s.userRepository.CreateUser(ctx, *payload.ToUser()); err != nil {
+		log.Error("Failed to create user", "error", err)
 		return err
 	}
+
+	log.Info("User created sucessfully")
 
 	return nil
 }

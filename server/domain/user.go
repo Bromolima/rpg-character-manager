@@ -1,17 +1,22 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
 
+var (
+	ErrEmailAlreadyExists = errors.New("email is already in database")
+)
+
 type User struct {
 	BaseModel
-	Email    string
-	Password string
-	Username string
-	ImageUrl string
+	Email    string `gorm:"unique;not null"`
+	Password string `gorm:"not null"`
+	Username string `gorm:"not null"`
+	ImageUrl string `gorm:""`
 }
 
 type UserPayload struct {

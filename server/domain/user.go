@@ -1,5 +1,11 @@
 package domain
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
 type User struct {
 	BaseModel
 	Email    string
@@ -13,4 +19,17 @@ type UserPayload struct {
 	Password string `json:"password" validate:"required,min=6,containsany=@#&%*"`
 	Username string `json:"username" validate:"required,min=4,max=20"`
 	ImageUrl string `json:"imageUrl"`
+}
+
+func (p *UserPayload) ToUser() *User {
+	return &User{
+		BaseModel: BaseModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+		},
+		Email:    p.Email,
+		Password: p.Password,
+		Username: p.Username,
+		ImageUrl: p.ImageUrl,
+	}
 }

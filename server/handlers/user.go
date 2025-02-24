@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -15,6 +16,7 @@ import (
 type UserHanlder interface {
 	CreateUser(ctx echo.Context) error
 	DeleteUser(ctx echo.Context) error
+	GetAllUsers(ctx echo.Context) error
 }
 
 type userHanlder struct {
@@ -56,8 +58,14 @@ func (h *userHanlder) CreateUser(ctx echo.Context) error {
 	}
 
 	if err := h.userService.CreateUser(ctx.Request().Context(), payload); err != nil {
-		log.Error("failed to bind payload", "error", err)
-		apiErr := apiErrors.NewInternalServerErr("failed to create user")
+		if errors.Is(err, domain.ErrEmailAlreadyExists) {
+			log.Warn("user already in database")
+			apiErr := apiErrors.NewBadRequestErr("user already exists")
+			return ctx.JSON(apiErr.Code, apiErr)
+		}
+
+		log.Error("unprocessable entity", "error", err)
+		apiErr := apiErrors.NewUnprocessableEntityErr("failed process request")
 		return ctx.JSON(apiErr.Code, apiErr)
 	}
 
@@ -66,4 +74,24 @@ func (h *userHanlder) CreateUser(ctx echo.Context) error {
 
 func (h *userHanlder) DeleteUser(ctx echo.Context) error {
 	return ctx.String(http.StatusOK, "user deleted sucessfuly")
+}
+
+func (h *userHanlder) GetAllUsers(ctx echo.Context) error {
+	log := slog.With(
+		slog.String("handler", "user"),
+		slog.String("func", "GetAllUsers"),
+	)
+
+	log.Info("starting to gel all users")
+
+	usersResponse, err := h.userService.GetAllUsers(ctx.Request().Context())
+	if err != nil {
+		log.Error("failed to get all users", "error", err)
+		apiErr := apiErrors.NewInternalServerErr("failed to get users")
+		return ctx.JSON(apiErr.Code, apiErr)
+	}
+
+	log.Info("All users has been got")
+
+	return ctx.JSON(http.StatusOK, usersResponse)
 }

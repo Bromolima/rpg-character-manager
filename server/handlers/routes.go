@@ -12,4 +12,5 @@ func SetupRoutes(e *echo.Echo, i do.Injector) {
 	}
 
 	e.POST("/", userHanlder.CreateUser)
+	e.GET("/users", userHanlder.GetAllUsers)
 }

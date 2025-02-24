@@ -11,6 +11,7 @@ import (
 
 type UserService interface {
 	CreateUser(ctx context.Context, payload domain.UserPayload) error
+	GetAllUsers(ctx context.Context) ([]domain.UserResponse, error)
 }
 
 type userService struct {
@@ -57,4 +58,29 @@ func (s *userService) CreateUser(ctx context.Context, payload domain.UserPayload
 	log.Info("User created sucessfully")
 
 	return nil
+}
+
+func (s *userService) GetAllUsers(ctx context.Context) ([]domain.UserResponse, error) {
+	log := slog.With(
+		slog.String("service", "user"),
+		slog.String("func", "GetAllUsers"),
+	)
+
+	log.Info("Starting to get all users")
+
+	var usersResponse []domain.UserResponse
+
+	users, err := s.userRepository.GetAllUsers(ctx)
+	if err != nil {
+		log.Error("Failed to get all users")
+		return nil, err
+	}
+
+	for _, user := range users {
+		usersResponse = append(usersResponse, *user.ToResponse())
+	}
+
+	log.Info("All users has been got")
+
+	return usersResponse, nil
 }

@@ -26,6 +26,10 @@ type UserPayload struct {
 	ImageUrl string `json:"imageUrl"`
 }
 
+type UserResponse struct {
+	Username string `json:"username"`
+}
+
 func (p *UserPayload) ToUser() *User {
 	return &User{
 		BaseModel: BaseModel{
@@ -36,5 +40,11 @@ func (p *UserPayload) ToUser() *User {
 		Password: p.Password,
 		Username: p.Username,
 		ImageUrl: p.ImageUrl,
+	}
+}
+
+func (u *User) ToResponse() *UserResponse {
+	return &UserResponse{
+		Username: u.Username,
 	}
 }

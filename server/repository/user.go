@@ -13,6 +13,7 @@ import (
 type UserRepository interface {
 	CreateUser(ctx context.Context, user domain.User) error
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetAllUsers(ctx context.Context) ([]domain.User, error)
 }
 
 type userRepository struct {
@@ -69,4 +70,22 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 
 	log.Info("User has been got by email")
 	return user, nil
+}
+
+func (r *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
+	log := slog.With(
+		slog.String("repository", "user"),
+		slog.String("func", "GetAllUsers"),
+	)
+
+	var users []domain.User
+
+	log.Info("Starting getting all users")
+	if err := r.db.WithContext(ctx).Find(&users).Error; err != nil {
+		log.Error("failed to get all users")
+	}
+
+	log.Info("All user has been got")
+
+	return users, nil
 }

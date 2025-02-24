@@ -45,6 +45,14 @@ func NewInternalServerErr(message string) *ApiError {
 	}
 }
 
+func NewUnprocessableEntityErr(message string) *ApiError {
+	return &ApiError{
+		Message: message,
+		Err:     "unprocessable entity",
+		Code:    http.StatusUnprocessableEntity,
+	}
+}
+
 func NewBadRequestValidationErr(message string, causes []Causes) *ApiError {
 	return &ApiError{
 		Message: message,
